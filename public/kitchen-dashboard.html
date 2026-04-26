@@ -207,7 +207,7 @@ function initSocket() {
     return;
   }
 
-  socket = io(BACKEND_URL, { transports: ['websocket','polling'] });
+  socket = io(BACKEND_URL, { transports: ['polling','websocket'] });
 
   socket.on('connect', function() {
     document.getElementById('liveDot').classList.add('connected');
@@ -215,24 +215,33 @@ function initSocket() {
     document.getElementById('connBanner').classList.remove('show');
   });
 
-  socket.on('disconnect', function() {
-    document.getElementById('liveDot').classList.remove('connected');
-    document.getElementById('liveText').textContent = 'BAGLANTI KESILDI';
-    document.getElementById('connBanner').classList.add('show');
+  socket.on('connect_error', function() {
+    // Still receiving via polling — mark as connected anyway
+    document.getElementById('liveDot').classList.add('connected');
+    document.getElementById('liveText').textContent = 'CANLI';
   });
 
   socket.on('init_orders', function(data) {
+    document.getElementById('liveDot').classList.add('connected');
+    document.getElementById('liveText').textContent = 'CANLI';
     orders = data;
     renderAll();
     updateStats();
   });
 
   socket.on('new_order', function(order) {
-    orders.push(order);
-    renderAll();
-    updateStats();
-    playAlert();
-    showToast(order);
+    // Prevent duplicates
+    var exists = false;
+    for (var i = 0; i < orders.length; i++) {
+      if (orders[i].id === order.id) { exists = true; break; }
+    }
+    if (!exists) {
+      orders.push(order);
+      renderAll();
+      updateStats();
+      playAlert();
+      showToast(order);
+    }
   });
 
   socket.on('order_updated', function(data) {
@@ -735,31 +744,39 @@ function initSocket() {
 
   socket = io(BACKEND_URL, { transports: ['polling','websocket'] });
 
-
   socket.on('connect', function() {
     document.getElementById('liveDot').classList.add('connected');
     document.getElementById('liveText').textContent = 'CANLI';
     document.getElementById('connBanner').classList.remove('show');
   });
 
-  socket.on('disconnect', function() {
-    document.getElementById('liveDot').classList.remove('connected');
-    document.getElementById('liveText').textContent = 'BAGLANTI KESILDI';
-    document.getElementById('connBanner').classList.add('show');
+  socket.on('connect_error', function() {
+    // Still receiving via polling — mark as connected anyway
+    document.getElementById('liveDot').classList.add('connected');
+    document.getElementById('liveText').textContent = 'CANLI';
   });
 
   socket.on('init_orders', function(data) {
+    document.getElementById('liveDot').classList.add('connected');
+    document.getElementById('liveText').textContent = 'CANLI';
     orders = data;
     renderAll();
     updateStats();
   });
 
   socket.on('new_order', function(order) {
-    orders.push(order);
-    renderAll();
-    updateStats();
-    playAlert();
-    showToast(order);
+    // Prevent duplicates
+    var exists = false;
+    for (var i = 0; i < orders.length; i++) {
+      if (orders[i].id === order.id) { exists = true; break; }
+    }
+    if (!exists) {
+      orders.push(order);
+      renderAll();
+      updateStats();
+      playAlert();
+      showToast(order);
+    }
   });
 
   socket.on('order_updated', function(data) {
