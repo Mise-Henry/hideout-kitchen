@@ -153,7 +153,7 @@ html,body{height:100%;background:var(--navy);color:var(--text-bright);font-famil
 <div class="conn-banner" id="connBanner">SUNUCU BAGLANTISI KESILDI - YENIDEN BAGLAN IYOR...</div>
 <div class="demo-banner" id="demoBanner">DEMO MOD - Render'a deploy ettikten sonra BACKEND_URL'yi guncelleyin</div>
 
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 <script>
 // ================================================================
 // HIDEOUT MUTFAK EKRANI
@@ -207,7 +207,7 @@ function initSocket() {
     return;
   }
 
-  socket = io(BACKEND_URL, { transports: ['polling','websocket'] });
+  socket = io({ transports: ['polling'] });
 
   socket.on('connect', function() {
     document.getElementById('liveDot').classList.add('connected');
