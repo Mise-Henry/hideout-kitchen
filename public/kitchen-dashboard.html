@@ -733,7 +733,8 @@ function initSocket() {
     return;
   }
 
-  socket = io(BACKEND_URL, { transports: ['websocket','polling'] });
+  socket = io(BACKEND_URL, { transports: ['polling','websocket'] });
+
 
   socket.on('connect', function() {
     document.getElementById('liveDot').classList.add('connected');
