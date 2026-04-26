@@ -262,10 +262,41 @@ function setSection(sec, btn) {
 }
 
 // Detect if order is bar or kitchen based on items
+function normalizeTr(str) {
+  return str.toLowerCase()
+    .replace(/ü/g,'u').replace(/ö/g,'o').replace(/ş/g,'s')
+    .replace(/ı/g,'i').replace(/ğ/g,'g').replace(/ç/g,'c')
+    .replace(/Ü/g,'u').replace(/Ö/g,'o').replace(/Ş/g,'s')
+    .replace(/İ/g,'i').replace(/Ğ/g,'g').replace(/Ç/g,'c');
+}
+
 function getOrderSection(order) {
-  var barKeywords = ['kokteyl','bira','sarap','viski','votka','cin','rom','tekila','aperol','campari','martini','mojito','espresso martini','negroni','long island','cuba libre','pornstar','caipirinha','manhattan','whiskey sour','bloody mary','lynchburg','spritz','prosecco','moet','champagne','gin','rum','bourbon','spirits','likör','mürver','cola','fanta','sprite','schweppes','red bull','maden suyu','san pellegrino','tonic','portakal suyu','fuse tea','americano','latte','cappuccino','filtre','türk kahvesi','çay'];
+  var barKeywords = [
+    // Beers
+    'efes','becks','stella','bud','duvel','erdinger','bomanti','corona','miller','malt','gluten',
+    // Cocktails
+    'kokteyl','cocktail','mojito','negroni','martini','sour','fashioned','caipirinha','manhattan',
+    'island','lemonade','bloody','cuba','libre','pornstar','spritz','smoky','dream','storm',
+    'sin','bahar','altin','sifaci','dumani','sessiz','ada gu','gizli','tutku',
+    // Wine & Champagne
+    'sarap','wine','rouge','blanc','rose','prosecco','moet','champagne','sparkling',
+    'cabernet','bogazkere','malbec','narince','sauvignon','kalecik','pinot','isinda','araza','arykanda',
+    // Spirits
+    'viski','whiskey','whisky','bourbon','scotch','bourbon','vodka','votka','gin','rom','rum',
+    'tekila','tequila','aperol','campari','likör','liqueur','cognac','hennessy','metaxa',
+    'cardhu','aberfeldy','dalmore','glenfiddich','glenlivet','macallan','oban','lagavulin',
+    'talisker','singleton','teeling','monkey','johnnie','walker','dimple','jameson','chivas',
+    'royal salute','bulleit','jim beam','jack daniel','smirnoff','ketel','beluga','grey goose',
+    'belvedere','gordon','tanqueray','hendrick','gin mare','monkey 47','roku','bombay',
+    'don julio','casamigos','ojo de tigre','olmeca','captain morgan','zacapa','bumbu','havana',
+    'amaretto','limoncello','jager','digestif','dijestif','aperatif',
+    // Soft drinks & hot drinks
+    'cola','fanta','sprite','schweppes','red bull','maden','pellegrino','tonic',
+    'portakal','fuse tea','americano','latte','cappuccino','filtre','kahve','coffee',
+    'cay','tea','espresso','hot chocolate','bira','beer','spirits'
+  ];
   for (var i = 0; i < order.items.length; i++) {
-    var name = order.items[i].name.toLowerCase();
+    var name = normalizeTr(order.items[i].name);
     for (var j = 0; j < barKeywords.length; j++) {
       if (name.indexOf(barKeywords[j]) !== -1) return 'bar';
     }
@@ -302,8 +333,10 @@ function initSocket() {
       orders.push(order);
       renderAll();
       updateStats();
-      if (!muted) playAlert('new');
       showToast(order);
+      setTimeout(function() {
+        if (!muted) playAlert('new');
+      }, 300);
     }
   });
 
