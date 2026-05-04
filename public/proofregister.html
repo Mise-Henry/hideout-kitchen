@@ -3,152 +3,656 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Proof of Funds</title>
+  <title>Proof of Funds — Proof Register</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://db.onlinewebfonts.com/c/fca8cfd5ab0f5792f32a4cfe2165899e?family=Glorify+DEMO" rel="stylesheet" />
   <style>
+    /* ── Base ── */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --bg: #000;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --blue: #2997ff;
+      --purple: #bf5af2;
+      --accent-gradient: linear-gradient(135deg, #2997ff 0%, #bf5af2 100%);
+    }
+
+    html { background: var(--bg); }
+
     body {
-      background: #1c1d20;
-      font-family: 'Glorify DEMO', sans-serif;
+      margin: 0;
+      background: #000;
+      color: #f5f5f7;
+      font-family: -apple-system, "SF Pro Display", "SF Pro Text",
+                   BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Ambient background orbs ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 600px; height: 600px; background: #2997ff; top: -200px; left: -200px; }
+    .orb-2 { width: 500px; height: 500px; background: #bf5af2; bottom: 10%; right: -150px; }
+    .orb-3 { width: 400px; height: 400px; background: #30d158; top: 50%; left: 30%; opacity: 0.07; }
+
+    /* ── Glassmorphism ── */
+    .glass {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--border);
+    }
+
+    /* ── Gradient text ── */
+    .grad-text {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Nav ── */
+    nav.site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 56px;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+    nav.site-nav a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+    nav.site-nav a:hover { color: #fff; }
+    nav.site-nav .nav-links { display: flex; gap: 2rem; }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 6rem;
+      z-index: 1;
+    }
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(3rem, 10vw, 8rem);
+      font-weight: 700;
+      line-height: 1.0;
+      letter-spacing: -0.03em;
+      margin: 0 0 1.5rem;
+    }
+    .hero-sub {
+      max-width: 560px;
+      font-size: 1.125rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.7;
+      margin: 0 auto 3rem;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 2.2rem;
+      border-radius: 980px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: var(--accent-gradient);
+      color: #fff;
+      letter-spacing: 0.01em;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; transform: scale(1.02); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 2.2rem;
+      border-radius: 980px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      color: var(--blue);
+      border: 1px solid rgba(41,151,255,0.4);
+      letter-spacing: 0.01em;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .btn-ghost:hover {
+      background: rgba(41,151,255,0.1);
+      border-color: var(--blue);
+      transform: scale(1.02);
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Steps strip ── */
+    .steps-strip {
+      position: relative;
+      z-index: 1;
+      padding: 0 max(2rem, 5vw) 6rem;
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+    .step-card {
+      background: #000;
+      padding: 2.5rem 2rem;
+      transition: background 0.3s;
+    }
+    .step-card:hover { background: rgba(255,255,255,0.03); }
+    .step-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--blue);
+      margin-bottom: 1rem;
+    }
+    .step-card h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0 0 0.6rem;
+    }
+    .step-card p {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* ── Feature sections ── */
+    .feature-section {
+      position: relative;
+      z-index: 1;
+      padding: 7rem max(2rem, 5vw);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 768px) {
+      .feature-section { grid-template-columns: 1fr; gap: 2.5rem; }
+    }
+    .feature-tag {
+      display: inline-block;
+      padding: 0.3rem 0.9rem;
+      border-radius: 980px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(41,151,255,0.12);
+      color: var(--blue);
+      border: 1px solid rgba(41,151,255,0.25);
+      margin-bottom: 1.25rem;
+    }
+    .feature-section h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin: 0 0 1.25rem;
+    }
+    .feature-section p {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.75;
+      margin: 0 0 1.5rem;
+    }
+
+    /* ── Stat cards ── */
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+    }
+    .stat-box .stat-num {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .stat-box .stat-label {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.45);
+      margin-top: 0.4rem;
+    }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* ── How it works checklist ── */
+    .check-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1rem; }
+    .check-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.75);
+    }
+    .check-icon {
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(48,209,88,0.15);
+      border: 1px solid rgba(48,209,88,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem;
+      color: #30d158;
+      margin-top: 2px;
+    }
+
+    /* ── Brands ── */
+    .brands-section {
+      position: relative;
+      z-index: 1;
+      padding: 7rem max(2rem, 5vw);
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    .brands-section h2 {
+      font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.75rem;
+    }
+    .brands-section .sub {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 3.5rem;
+    }
+    .brands-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+    .brand-cell {
+      background: #000;
+      padding: 2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+    .brand-cell:hover { background: rgba(255,255,255,0.04); }
+    .brand-cell img { width: 110px; opacity: 0.6; transition: opacity 0.3s; filter: brightness(0) invert(1); }
+    .brand-cell:hover img { opacity: 1; }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 4rem max(2rem, 5vw) 3rem;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+    @media (max-width: 768px) {
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      nav.site-nav .nav-links { display: none; }
+    }
+    .footer-brand p {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.7;
+      margin-top: 0.75rem;
+      max-width: 280px;
+    }
+    .footer-col h4 {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin: 0 0 1rem;
+    }
+    .footer-col a, .footer-col p {
+      display: block;
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.3);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-socials { display: flex; gap: 1.5rem; }
+    .footer-socials a { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.78rem; transition: color 0.2s; }
+    .footer-socials a:hover { color: #fff; }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1),
+                  transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Mobile hamburger ── */
+    .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+    @media (max-width: 768px) { .hamburger { display: block; } }
+    .hamburger span {
+      display: block; width: 22px; height: 1.5px;
+      background: rgba(255,255,255,0.75);
+      margin: 5px 0;
+      transition: all 0.3s;
     }
   </style>
 </head>
-<body class="antialiased text-gray-100">
+<body>
 
-  <!-- Header -->
-  <header class="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+  <!-- Ambient orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- ── Navigation ── -->
+  <nav class="site-nav">
     <img
       src="https://www.proofregister.org/assets/imgs/logo/proof-register-logo.svg"
-      alt="Proof Register Logo"
-      class="h-10"
+      alt="Proof Register"
+      style="height:28px;"
     />
-    <!-- Mobile menu button -->
-    <button class="text-2xl lg:hidden" aria-label="Open menu">☰</button>
-    <!-- Desktop nav -->
-    <nav class="hidden lg:flex space-x-6">
-      <a href="#" class="hover:underline">Home</a>
-      <a href="#" class="hover:underline">About</a>
-      <a href="#" class="hover:underline">Services</a>
-      <a href="#" class="hover:underline">Contact</a>
-    </nav>
-  </header>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Services</a>
+      <a href="#">Contact</a>
+    </div>
+    <button class="btn-primary" style="padding:0.55rem 1.4rem;font-size:0.8rem;">
+      Connect Wallet
+    </button>
+    <button class="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
 
-  <!-- Hero -->
-  <section class="py-12 px-6 lg:px-20 text-center">
-    <h1 class="text-5xl md:text-8xl lg:text-9xl font-bold tracking-wider">
-      PROOF OF FUNDS
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <p class="hero-eyebrow reveal">Blockchain-Verified · Trustless · Instant</p>
+    <h1 class="reveal" style="transition-delay:0.08s">
+      <span class="grad-text">Proof</span><br />of Funds
     </h1>
-  </section>
-
-  <!-- Main content -->
-  <main class="px-2 lg:px-20">
-
-    <!-- Steps + Description -->
-    <div class="flex flex-col lg:flex-row items-start gap-12">
-
-      <!-- Steps -->
-      <section class="max-w-3xl mx-auto text-left">
-        <p class="text-lg uppercase tracking-wider">Follow these steps:</p>
-        <ul class="mt-4 space-y-3 text-lg">
-          <li class="font-bold">+ Connect wallet</li>
-          <li class="font-bold">+ Approve smart contract verification</li>
-          <li class="font-bold">+ Confirm Contract Result</li>
-        </ul>
-        <button
-          class="mt-6 px-8 py-3 border border-white rounded-full text-lg hover:bg-white hover:text-black transition duration-300 w-full md:w-auto"
-        >
-          CONNECT WALLET
-        </button>
-      </section>
-
-      <!-- Section 01 -->
-      <section class="mt-2 max-w-3xl mx-5 text-left">
-        <p class="text-gray-400">01</p>
-        <h2 class="text-3xl font-bold uppercase">Proof of Funds Availability</h2>
-        <p class="mt-4 text-gray-400 leading-relaxed">
-          Proof of funds (PoF) is a verification process that confirms an individual or entity
-          has the required assets or liquidity to complete a transaction. In traditional finance,
-          this might involve bank statements or other financial records. In the crypto space,
-          this verification is usually achieved through blockchain technology, where digital
-          signatures and addresses are used to confirm the presence of sufficient funds in a
-          wallet before a transaction is processed.
-        </p>
-      </section>
-
-    </div>
-
-    <!-- Section 02 -->
-    <section class="mt-12 max-w-3xl mx-5 text-left">
-      <p class="text-gray-400">02</p>
-      <h2 class="text-3xl font-bold uppercase">Why is this Important?</h2>
-      <p class="mt-4 font-bold uppercase">Ensure Transaction Reliability:</p>
-      <p class="mt-2 text-gray-400 leading-relaxed">
-        Proof of funds checks add a layer of security to ensure that all participants in a
-        transaction can meet their obligations, preventing fraud and enhancing trust in
-        financial interactions.
-      </p>
-      <ul class="mt-4 space-y-3 text-lg">
-        <li class="font-bold">+ 1. Connect a crypto wallet</li>
-        <li class="font-bold">+ 2. Approve to begin smart contract polling</li>
-        <li class="font-bold">+ 3. Finally, confirm Contract Call.</li>
-      </ul>
-    </section>
-
-  </main>
-
-  <!-- Trusted Clients -->
-  <section class="py-20 px-6 lg:px-20 text-center">
-    <h2 class="text-4xl font-bold uppercase">Trusted Worldwide Clients</h2>
-    <div class="mt-10 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-01.svg" width="150" alt="Brand 1" /></div>
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-02.svg" width="150" alt="Brand 2" /></div>
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-03.svg" width="150" alt="Brand 3" /></div>
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-04.svg" width="150" alt="Brand 4" /></div>
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-05.svg" width="150" alt="Brand 5" /></div>
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-06.svg" width="150" alt="Brand 6" /></div>
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-07.svg" width="150" alt="Brand 7" /></div>
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-08.svg" width="150" alt="Brand 8" /></div>
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-09.svg" width="150" alt="Brand 9" /></div>
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-10.svg" width="150" alt="Brand 10" /></div>
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-11.svg" width="150" alt="Brand 11" /></div>
-      <div class="p-6"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-12.svg" width="150" alt="Brand 12" /></div>
+    <p class="hero-sub reveal" style="transition-delay:0.16s">
+      Verify asset liquidity on-chain in seconds. No paperwork.
+      No middlemen. Just cryptographic certainty.
+    </p>
+    <div class="hero-actions reveal" style="transition-delay:0.24s">
+      <button class="btn-primary">
+        Connect Wallet &nbsp;→
+      </button>
+      <button class="btn-ghost">Learn More</button>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="py-10 border-t border-gray-700 text-center text-gray-400">
-    <div class="flex flex-col items-center mx-5 space-y-4">
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
-        <div>
-          <img
-            src="https://www.proofregister.org/assets/imgs/logo/proof-register-logo.svg"
-            alt="Proof Register Logo"
-            class="h-12"
-          />
-        </div>
-        <div>
-          <a href="#" class="block hover:underline">About Me</a>
-          <a href="#" class="block hover:underline">Work</a>
-          <a href="#" class="block hover:underline">Contact</a>
-        </div>
-        <div>
-          <p>6541, Brand Tower, New York, USA</p>
-        </div>
-        <div>
-          <a href="mailto:info@example.com" class="block hover:underline">info@example.com</a>
-          <p>+(1) 365 301 710</p>
-        </div>
+  <!-- ── Steps ── -->
+  <div class="steps-strip reveal">
+    <p class="section-label" style="text-align:center;margin-bottom:2rem;">How it works</p>
+    <div class="steps-grid">
+      <div class="step-card">
+        <p class="step-num">STEP 01</p>
+        <h3>Connect Wallet</h3>
+        <p>Link your Web3 wallet securely. We support MetaMask, WalletConnect, Coinbase Wallet, and more.</p>
       </div>
-      <p class="mt-6">2022 - 2025 | ALL RIGHTS RESERVED BY PROOF REGISTER</p>
-      <div class="mt-2 space-x-4">
-        <a href="#" class="hover:underline">FB</a>
-        <span>|</span>
-        <a href="#" class="hover:underline">TW</a>
-        <span>|</span>
-        <a href="#" class="hover:underline">IN</a>
+      <div class="step-card">
+        <p class="step-num">STEP 02</p>
+        <h3>Approve Verification</h3>
+        <p>Sign the smart contract verification request. No funds move — only your balance is confirmed.</p>
+      </div>
+      <div class="step-card">
+        <p class="step-num">STEP 03</p>
+        <h3>Confirm Result</h3>
+        <p>Receive a cryptographically signed proof of funds certificate, valid for any counterparty.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Feature 01: What is PoF ── -->
+  <section class="feature-section reveal">
+    <div>
+      <span class="feature-tag">01 — Proof of Funds</span>
+      <h2>Verify liquidity.<br /><span class="grad-text">Without revealing it.</span></h2>
+      <p>
+        Proof of Funds (PoF) is a cryptographic verification that confirms you hold
+        the required assets to complete a transaction — without exposing your wallet
+        balance or private keys to any third party.
+      </p>
+      <p>
+        On-chain digital signatures replace bank statements. Your address speaks
+        for itself. Verification is instant, borderless, and tamper-proof.
+      </p>
+      <ul class="check-list">
+        <li>
+          <span class="check-icon">✓</span>
+          <span>Zero-knowledge ready — your balance stays private</span>
+        </li>
+        <li>
+          <span class="check-icon">✓</span>
+          <span>Works across EVM-compatible chains</span>
+        </li>
+        <li>
+          <span class="check-icon">✓</span>
+          <span>Immutable audit trail on the blockchain</span>
+        </li>
+      </ul>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="stat-num grad-text">3s</div>
+        <div class="stat-label">Average verification time</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num grad-text">0</div>
+        <div class="stat-label">Funds ever moved</div>
+      </div>
+      <div class="stat-box" style="grid-column:span 2">
+        <div class="stat-num grad-text">100%</div>
+        <div class="stat-label">Non-custodial — you keep full control</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Feature 02: Why it matters ── -->
+  <section class="feature-section reveal" style="direction:ltr">
+    <div class="stat-grid" style="grid-template-columns:1fr;">
+      <div class="stat-box" style="padding:2.5rem;">
+        <p class="section-label">Ensure Transaction Reliability</p>
+        <p style="font-size:1.05rem;color:rgba(255,255,255,0.6);line-height:1.75;margin:0;">
+          Every financial interaction deserves a foundation of trust. Proof of funds checks
+          ensure all participants can meet their obligations — eliminating fraud before it starts
+          and replacing slow manual verification with instant cryptographic certainty.
+        </p>
+      </div>
+    </div>
+    <div>
+      <span class="feature-tag">02 — Why It Matters</span>
+      <h2>Security built<br /><span class="grad-text">into every deal.</span></h2>
+      <p>
+        Traditional finance relies on slow, forgeable documents. Blockchain verification
+        is permanent, immediate, and requires no trust in a central authority.
+      </p>
+      <ul class="check-list">
+        <li>
+          <span class="check-icon">✓</span>
+          <span>Connect a crypto wallet in one tap</span>
+        </li>
+        <li>
+          <span class="check-icon">✓</span>
+          <span>Approve smart contract polling — read-only access only</span>
+        </li>
+        <li>
+          <span class="check-icon">✓</span>
+          <span>Confirm the contract call and receive your certificate</span>
+        </li>
+      </ul>
+      <button class="btn-primary" style="margin-top:2rem;">
+        Get Verified &nbsp;→
+      </button>
+    </div>
+  </section>
+
+  <!-- ── Trusted Clients ── -->
+  <section class="brands-section reveal">
+    <p class="section-label">Trusted worldwide</p>
+    <h2>Backed by industry leaders.</h2>
+    <p class="sub">Leading institutions and platforms rely on Proof Register.</p>
+    <div class="brands-grid">
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-01.svg" alt="Brand 1" /></div>
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-02.svg" alt="Brand 2" /></div>
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-03.svg" alt="Brand 3" /></div>
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-04.svg" alt="Brand 4" /></div>
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-05.svg" alt="Brand 5" /></div>
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-06.svg" alt="Brand 6" /></div>
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-07.svg" alt="Brand 7" /></div>
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-08.svg" alt="Brand 8" /></div>
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-09.svg" alt="Brand 9" /></div>
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-10.svg" alt="Brand 10" /></div>
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-11.svg" alt="Brand 11" /></div>
+      <div class="brand-cell"><img src="https://www.proofregister.org/assets/imgs/brand/style2/brand-12.svg" alt="Brand 12" /></div>
+    </div>
+  </section>
+
+  <!-- ── CTA Banner ── -->
+  <section class="reveal" style="position:relative;z-index:1;padding:0 max(2rem,5vw) 7rem;">
+    <div style="
+      background: linear-gradient(135deg, rgba(41,151,255,0.12), rgba(191,90,242,0.12));
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 5rem 3rem;
+      text-align: center;
+    ">
+      <p class="section-label">Ready to verify?</p>
+      <h2 style="font-size:clamp(2rem,4vw,3rem);font-weight:700;letter-spacing:-0.02em;margin:0 0 1rem;">
+        Your proof. On-chain.<br /><span class="grad-text">In seconds.</span>
+      </h2>
+      <p style="color:rgba(255,255,255,0.45);max-width:460px;margin:0 auto 2.5rem;line-height:1.7;">
+        Join thousands of users who verify assets without paperwork, delays, or trust assumptions.
+      </p>
+      <button class="btn-primary" style="font-size:1rem;padding:1rem 2.8rem;">
+        Connect Wallet &nbsp;→
+      </button>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="reveal">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img
+          src="https://www.proofregister.org/assets/imgs/logo/proof-register-logo.svg"
+          alt="Proof Register"
+          style="height:28px;opacity:0.8;"
+        />
+        <p>Blockchain-powered proof of funds verification. Fast, private, and fully non-custodial.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Work</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <a href="mailto:info@example.com">info@example.com</a>
+        <p>+(1) 365 301 710</p>
+      </div>
+      <div class="footer-col">
+        <h4>Location</h4>
+        <p>6541 Brand Tower</p>
+        <p>New York, USA</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>2022 – 2025 &nbsp;©&nbsp; Proof Register. All rights reserved.</span>
+      <div class="footer-socials">
+        <a href="#">Facebook</a>
+        <a href="#">Twitter</a>
+        <a href="#">LinkedIn</a>
       </div>
     </div>
   </footer>
 
+  <script>
+    // Scroll reveal
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Trigger hero reveals immediately
+    document.querySelectorAll('.hero .reveal').forEach(el => {
+      setTimeout(() => el.classList.add('visible'), 100);
+    });
+  </script>
 </body>
 </html>
